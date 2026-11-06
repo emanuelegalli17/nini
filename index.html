@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Per la mia Nini</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  --sky-top:#1b2150; --sky-bot:#5a3a7a; --glow:#ff9d5c;
+  --ink:#fff8e8; --muted:#d6d3f5; --card:rgba(255,248,232,.1); --line:rgba(255,248,232,.25);
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){--sky-top:#ffe7b0;--sky-bot:#f7b6a0;--glow:#ffd36b;--ink:#2a1d4a;--muted:#5b4a7a;--card:rgba(42,29,74,.07);--line:rgba(42,29,74,.25)}
+}
+:root[data-theme="light"]{--sky-top:#ffe7b0;--sky-bot:#f7b6a0;--glow:#ffd36b;--ink:#2a1d4a;--muted:#5b4a7a;--card:rgba(42,29,74,.07);--line:rgba(42,29,74,.25)}
+:root[data-theme="dark"]{--sky-top:#1b2150;--sky-bot:#5a3a7a;--glow:#ff9d5c;--ink:#fff8e8;--muted:#d6d3f5;--card:rgba(255,248,232,.1);--line:rgba(255,248,232,.25)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;min-height:100vh;color:var(--ink);text-align:center;
+  font-family:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;
+  background:radial-gradient(120% 60% at 50% 100%,var(--glow) 0%,transparent 60%),linear-gradient(180deg,var(--sky-top),var(--sky-bot)) fixed;
+}
+main{max-width:30rem;margin:0 auto;padding:2rem 1.25rem 3.5rem}
+h1{font-family:"Young Serif",Georgia,"Times New Roman",serif;font-weight:400;font-size:clamp(2.1rem,9.5vw,3rem);line-height:1.08;margin:0 0 .4rem}
+.sub{color:var(--muted);margin:0 0 .75rem}
+#flower{width:min(80vw,19rem);height:auto;display:block;margin:0 auto;overflow:visible;filter:drop-shadow(0 10px 22px rgba(0,0,0,.28))}
+.p{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pe{fill:url(#pg);stroke:rgba(255,255,255,0);stroke-width:3;stroke-linejoin:round;transition:fill .3s,stroke .2s}
+.p.done .pe{fill:url(#pgd)}
+.p.on .pe{stroke:#fff}
+.p:focus{outline:none}
+.p:focus-visible .pe{stroke:#fff}
+.vn{fill:none;stroke:rgba(122,58,0,.3);stroke-width:1.4;stroke-linecap:round;pointer-events:none}
+.pi{transform-box:fill-box;transform-origin:50% 100%;animation:grow .7s ease-out both;animation-delay:var(--d,0s)}
+@keyframes grow{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
+.card{margin-top:.75rem;background:var(--card);border:1.5px solid var(--line);border-radius:1.25rem;padding:1.2rem 1.1rem;min-height:7.5rem;display:flex;align-items:center;justify-content:center}
+.card p{margin:0;font-family:"Young Serif",Georgia,serif;font-size:1.3rem;line-height:1.3}
+.card p.hint{font-family:"DM Sans",system-ui,sans-serif;font-size:1rem;color:var(--muted)}
+.count{margin:.9rem 0 0;color:var(--muted);font-size:.9rem}
+.end{margin:1.25rem 0 0;font-family:"Young Serif",Georgia,serif;font-size:1.3rem;line-height:1.3;display:none}
+.end.show{display:block;animation:fade .9s both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion: reduce){.pi,.end.show{animation:none}.pe{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Per la mia Nini</h1>
+  <p class="sub">Un girasole con otto motivi. Tocca i petali.</p>
+  <svg id="flower" viewBox="-120 -120 240 300" role="group" aria-label="Girasole con otto petali da toccare"></svg>
+  <section class="card" aria-live="polite"><p class="hint" id="msg">Scegli un petalo per iniziare.</p></section>
+  <p class="count" id="count">0 di 8 petali</p>
+  <p class="end" id="end">Questi sono solo otto.<br>Gli altri te li dico a voce.</p>
+</main>
+<script>
+(function(){
+  var motivi=[
+    "Mi rendi le giornate più belle.",
+    "Mi porti fortuna.",
+    "Mi basta un tuo messaggio per sorridere.",
+    "Non vedo l’ora di vederti.",
+    "Mi fai ridere.",
+    "Sei bellissima, fuori e dentro.",
+    "Ti voglio sempre accanto.",
+    "Sei semplicemente tu."
+  ];
+  var svg=document.getElementById("flower"),msg=document.getElementById("msg"),
+      count=document.getElementById("count"),end=document.getElementById("end");
+  var done={},n=0,h="";
+  h+='<defs>'+
+    '<linearGradient id="pg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#f08c00"/><stop offset="1" stop-color="#ffd84d"/></linearGradient>'+
+    '<linearGradient id="pgd" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#e8590c"/><stop offset=".6" stop-color="#ff922b"/><stop offset="1" stop-color="#ffc61a"/></linearGradient>'+
+    '<linearGradient id="bgp" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#c96a05"/><stop offset="1" stop-color="#f5a30f"/></linearGradient>'+
+    '<radialGradient id="cg" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#7a4a1f"/><stop offset=".7" stop-color="#3a210e"/><stop offset="1" stop-color="#241208"/></radialGradient>'+
+    '<linearGradient id="lf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6bbf59"/><stop offset="1" stop-color="#357a34"/></linearGradient>'+
+    '</defs>';
+  h+='<path d="M0,60 C-5,110 5,150 0,185" stroke="#3f8a3c" stroke-width="9" fill="none" stroke-linecap="round"/>'+
+     '<path d="M0,135 C-38,112 -68,122 -78,146 C-50,160 -22,156 0,135Z" fill="url(#lf)"/>'+
+     '<path d="M0,150 C38,127 68,137 78,161 C50,175 22,171 0,150Z" fill="url(#lf)"/>';
+  for(var k=0;k<16;k++){
+    h+='<g transform="rotate('+(k*22.5+11.25)+')"><g class="pi" style="--d:'+(k*0.035).toFixed(2)+'s">'+
+       '<path d="M0,-34 C-15,-52 -13,-88 0,-104 C13,-88 15,-52 0,-34Z" fill="url(#bgp)" stroke="rgba(120,60,0,.25)" stroke-width=".8"/></g></g>';
+  }
+  for(var i=0;i<8;i++){
+    h+='<g class="p" data-i="'+i+'" tabindex="0" role="button" aria-label="Petalo '+(i+1)+' di 8" transform="rotate('+(i*45)+')">'+
+       '<g class="pi" style="--d:'+(0.7+i*0.07).toFixed(2)+'s">'+
+       '<path class="pe" d="M0,-36 C-22,-52 -20,-92 0,-112 C20,-92 22,-52 0,-36Z"/>'+
+       '<path class="vn" d="M0,-42 L0,-100"/></g></g>';
+  }
+  h+='<g pointer-events="none"><circle r="42" fill="url(#cg)"/>';
+  var ga=Math.PI*(3-Math.sqrt(5)),cols=["#3a210e","#5a3416","#7a4a1f","#2a170a"];
+  for(var s=1;s<=170;s++){
+    var r=3*Math.sqrt(s),t=s*ga;
+    h+='<circle cx="'+(r*Math.cos(t)).toFixed(1)+'" cy="'+(r*Math.sin(t)).toFixed(1)+'" r="'+(1.1+s*0.0045).toFixed(2)+'" fill="'+cols[s%4]+'"/>';
+  }
+  h+='<circle r="42" fill="none" stroke="#a8691f" stroke-width="1.5" opacity=".6"/></g>';
+  svg.innerHTML=h;
+
+  function pick(g){
+    var i=+g.getAttribute("data-i");
+    var all=svg.querySelectorAll(".p");
+    for(var j=0;j<all.length;j++)all[j].classList.remove("on");
+    g.classList.add("on");
+    if(!done[i]){done[i]=true;n++;g.classList.add("done");}
+    msg.className="";msg.textContent=motivi[i];
+    count.textContent=n+" di 8 petali";
+    if(n===8)end.classList.add("show");
+  }
+  svg.addEventListener("click",function(e){
+    var g=e.target.closest?e.target.closest(".p"):null;
+    if(g)pick(g);
+  });
+  svg.addEventListener("keydown",function(e){
+    if(e.key==="Enter"||e.key===" "){
+      var g=e.target.closest?e.target.closest(".p"):null;
+      if(g){e.preventDefault();pick(g);}
+    }
+  });
+})();
+</script>
+</body>
+</html>
